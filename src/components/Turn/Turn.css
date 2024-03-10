@@ -1,0 +1,19 @@
+.turn-board {
+    width: 150px;
+    height: 100px;
+    background-color: rgb(87, 86, 86);
+    border-radius: 10px;
+    color: white;
+    font-size: 18px;
+    padding-left: 5px;
+    padding-top: 10px;
+}
+
+.turn-number {
+    font-size: 32px;
+    padding-left: 20px;
+}
+
+.turn-number>span {
+    font-size: 16px;
+}

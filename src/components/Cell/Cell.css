@@ -1,0 +1,58 @@
+.cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    font-size: 32px;
+    font-weight: bold;
+    padding: 5px;
+    border-radius: 50%;
+    color: white;
+    background-color: #dadada;
+    cursor: pointer;
+}
+
+.cell1 {
+    color: rgb(166, 75, 75);
+}
+
+.cell2 {
+    color: rgb(180, 180, 97);
+}
+
+.cell3 {
+    color: rgb(118, 186, 97);
+}
+
+.cell4 {
+    color: rgb(185, 139, 80);
+}
+
+.cell5 {
+    color: rgb(86, 175, 156);
+}
+
+.cell6 {
+    color: rgb(184, 91, 126);
+}
+
+.cell7 {
+    color: rgb(76, 99, 162);
+}
+
+.cell8 {
+    color: rgb(48, 147, 86);
+}
+
+.cell9 {
+    color: rgb(122, 74, 168);
+}
+
+.select {
+    border: 3px solid green;
+}
+
+.canput {
+    border: 3px solid red;
+}

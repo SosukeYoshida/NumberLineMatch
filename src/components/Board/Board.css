@@ -1,0 +1,17 @@
+.outerframe-board {
+    text-align: center;
+}
+
+.board {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 15px;
+    background-color: rgb(57, 55, 55);
+}
+
+.board-line {
+    display: flex;
+    gap: 10px;
+}
