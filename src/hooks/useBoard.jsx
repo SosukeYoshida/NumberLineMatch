@@ -7,11 +7,11 @@ export const useBoard = () => {
         [0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 5],
-        [0, 4, 0, 6, 0, 0, 0, 1],
-        [6, 7, 3, 5, 6, 8, 5, 3],
-        [4, 2, 4, 8, 2, 1, 8, 4],
-        [2, 2, 2, 2, 6, 6, 6, 3],
+        [0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0],
     ];
     const [board, setBoard] = useState(boardArray);
     const [selectedList, setSelectedList] = useState([]);
@@ -19,6 +19,7 @@ export const useBoard = () => {
     const [secondClickIndex, setSecondClickIndex] = useState([]);
     const [canClickCell, setCanClickCell] = useState([]);
     const [canChangeCell, setCanChangeCell] = useState([]);
+    const [addCellArray, setAddCellArray] = useState([]);
     const [isActive, setIsActive] = useState(false);
     const [isActive2, setIsActive2] = useState(false);
     const [isTurn, setIsTurn] = useState(false);
@@ -28,6 +29,33 @@ export const useBoard = () => {
     const outBoard = (y, x) => {
         return y >= 0 && y < 10 && x >= 0 && x < 8;
     }
+
+    useEffect(() => {
+        const generateRandomValues = () => {
+            let newBoard = [];
+            for (let i = 0; i < 10; i++) {
+                let row = [];
+                for (let j = 0; j < 8; j++) {
+                    row.push(0);
+                }
+                newBoard.push(row);
+            }
+
+            // 7, 8, 9行目にランダムな値を8つずつ入れる
+            for (let i = 7; i < 10; i++) {
+                let randomRow = [];
+                for (let j = 0; j < 8; j++) {
+                    const randomNum = Math.floor(Math.random() * 9 + 1);
+                    randomRow.push(randomNum);
+                }
+                newBoard[i] = randomRow;
+            }
+
+            setBoard(newBoard);
+        };
+
+        generateRandomValues();
+    }, []);
 
     const searchArray = [
         [-1, -1],
@@ -247,9 +275,13 @@ export const useBoard = () => {
         })
     }
 
+    const addCell = () => {
+
+    }
 
 
     useEffect(() => {
+        console.log(addCellArray);
         // //secondClickIndexが押されたとき、canClickCell配列に含まれているなら削除
         // //secondClickIndexが押されたとき、8方向探索して、
         // // firstClickIndexがある座標までの１方向を配列に格納してから削除する
@@ -319,6 +351,18 @@ export const useBoard = () => {
         if (isTurn) {
             setTurn(prevTurn => {
                 if (prevTurn - 1 == 0) {
+                    setBoard(prevBoard => {
+                        let randomArray = [];
+                        const newCellArray = [...prevBoard];
+                        for (let i = 0; i < 8; i++) {
+                            const randomNumCell = Math.floor(Math.random() * 9 + 1);
+                            randomArray.push(randomNumCell);
+                        }
+                        console.log(newCellArray.shift());
+                        newCellArray.push(randomArray);
+                        randomArray = [];
+                        return newCellArray;
+                    })
                     prevTurn = 5;
                     return prevTurn;
                 }
