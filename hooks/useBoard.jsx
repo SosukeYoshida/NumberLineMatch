@@ -27,37 +27,38 @@ export const useBoard = () => {
     const [checkDiff, setCheckDiff] = useState([]);
     const [checkSome, setCheckSome] = useState([]);
 
+
     //場外判定
     const outBoard = (y, x) => {
         return y >= 0 && y < 10 && x >= 0 && x < 8;
     }
 
-    // useEffect(() => {
-    //     const generateRandomValues = () => {
-    //         let newBoard = [];
-    //         for (let i = 0; i < 10; i++) {
-    //             let row = [];
-    //             for (let j = 0; j < 8; j++) {
-    //                 row.push(0);
-    //             }
-    //             newBoard.push(row);
-    //         }
+    useEffect(() => {
+        const generateRandomValues = () => {
+            let newBoard = [];
+            for (let i = 0; i < 10; i++) {
+                let row = [];
+                for (let j = 0; j < 8; j++) {
+                    row.push(0);
+                }
+                newBoard.push(row);
+            }
 
-    //         // 7, 8, 9行目にランダムな値を8つずつ入れる
-    //         for (let i = 7; i < 10; i++) {
-    //             let randomRow = [];
-    //             for (let j = 0; j < 8; j++) {
-    //                 const randomNum = Math.floor(Math.random() * 9 + 1);
-    //                 randomRow.push(randomNum);
-    //             }
-    //             newBoard[i] = randomRow;
-    //         }
+            // 7, 8, 9行目にランダムな値を8つずつ入れる
+            for (let i = 7; i < 10; i++) {
+                let randomRow = [];
+                for (let j = 0; j < 8; j++) {
+                    const randomNum = Math.floor(Math.random() * 9 + 1);
+                    randomRow.push(randomNum);
+                }
+                newBoard[i] = randomRow;
+            }
 
-    //         setBoard(newBoard);
-    //     };
+            setBoard(newBoard);
+        };
 
-    //     generateRandomValues();
-    // }, []);
+        generateRandomValues();
+    }, []);
 
     const searchArray = [
         [-1, -1],
@@ -324,8 +325,6 @@ export const useBoard = () => {
                     const newX = secondClickIndex[1] + searchArray[j][1] * k;
                     if (outBoard(newY, newX)) {
                         if (firstClickIndex[0] === newY && firstClickIndex[1] === newX) {
-                            // console.log(newY, newX);
-                            //         // foundDirections.push(searchArray[j]);
                             for (let l = 1; l < 10; l++) {
                                 const removeInY = secondClickIndex[0] + searchArray[j][0] * l;
                                 const removeInX = secondClickIndex[1] + searchArray[j][1] * l;
@@ -405,27 +404,46 @@ export const useBoard = () => {
 
     }, [isTurn]);
 
+    const [isStart, setIsStart] = useState(false);
+
     useEffect(() => {
-        if (selectedList[0] && checkDiff.length == 0 && checkSome.length == 0) {
-         
-            setBoard(prevBoard => {
-                let randomArray = [];
-                const newCellArray = [...prevBoard];
-                for (let i = 0; i < 8; i++) {
-                    const randomNumCell = Math.floor(Math.random() * 9 + 1);
-                    randomArray.push(randomNumCell);
+        searchMerge();
+        setIsStart(true);
+    }, []);
+
+    useEffect(() => {
+        searchMerge();
+    }, [isActive2]);
+
+    useEffect(() => {
+        if (isStart) {
+            // 初期値である空の配列の場合は処理をスキップする
+            if (checkDiff.length === 0 && checkSome.length === 0 && isActive2) {
+                console.log("消せるのがない");
+                setBoard(prevBoard => {
+
+                    let randomArray = [];
+                    const newCellArray = [...prevBoard];
+                    for (let i = 0; i < 8; i++) {
+                        const randomNumCell = Math.floor(Math.random() * 9 + 1);
+                        randomArray.push(randomNumCell);
+                    }
+                    // newCellArray.pop();
+                    newCellArray.shift();
+                    newCellArray.push(randomArray);
+                    randomArray = [];
+                    return newCellArray;
+                });
+                if (isTurn - 1 !== 0) {
+                    setTurn(5);
                 }
-                newCellArray.shift();
-                newCellArray.push(randomArray);
-                randomArray = [];
-                return newCellArray;
-            })
-            setTurn(5);
+                // setFirstClickIndex([]);
+                // setSecondClickIndex([])
+            }
+            // console.log(firstClickIndex, secondClickIndex);
         }
     }, [checkSome, checkDiff]);
 
 
-
     return { board, handleClick, canSecondClickContent, firstClickIndex, canClickCell, turn };
 }
-
