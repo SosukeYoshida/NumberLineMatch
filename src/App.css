@@ -6,7 +6,19 @@
 }
 
 .title {
-    font-size: 48px;
+    color: rgb(220, 171, 155);
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    font-size: 70px;
     display: flex;
     justify-content: center;
+}
+
+.end-message {
+    font-size: 64px;
+    font-weight: bold   ;
+    color: rgb(225, 161, 219);
+    position: absolute;
+    top: 65%;
+    left: 50%;
+    transform: translate(-50%,-50%);
 }

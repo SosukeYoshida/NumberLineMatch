@@ -9,9 +9,9 @@ export const useBoard = () => {
         [0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
-        [1, 0, 0, 0, 0, 2, 5, 0],
-        [1, 0, 2, 5, 0, 0, 3, 4],
-        [1, 0, 5, 4, 1, 1, 3, 4],
+        [0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0],
     ];
     const [board, setBoard] = useState(boardArray);
     const [selectedList, setSelectedList] = useState([]);
@@ -28,7 +28,8 @@ export const useBoard = () => {
     const [checkDiff, setCheckDiff] = useState([]);
     const [checkSome, setCheckSome] = useState([]);
     const [isEndGame, setIsEndGame] = useState(false);
-
+    const [endMessage, setEndMessage] = useState("");
+    const [score, setScore] = useState(0);
 
     //場外判定
     const outBoard = (y, x) => {
@@ -76,125 +77,132 @@ export const useBoard = () => {
     let result = [];
     let canPutCell = [];
     const searchMerge = () => {
-        const target = 10;
-        let diffResult = [];
-        let someResult = [];
-        let diffCanPutCellResult = [];
-        for (let i = 0; i < board.length; i++) {
-            for (let j = 0; j < board[i].length; j++) {
-                if (board[i][j] > 0) {
-                    for (let k = 0; k < searchArray.length; k++) {
-                        let sum = board[i][j];
-                        const differentcurrentArray = [{ y: i, x: j, value: board[i][j] }];
-                        const diffCanPutCellArray = [{ y: i, x: j, value: board[i][j] }];
-                        const somecurrentArray = [{ y: i, x: j, value: board[i][j] }];
-                        // console.log(differentcurrentArray);
-                        differentNum(board, target, sum, k, i, j, differentcurrentArray, diffResult, diffCanPutCellArray, diffCanPutCellResult);
-                        someNum(board, target, sum, k, i, j, somecurrentArray, someResult);
-                        checkSomeNum(board, target, sum, k, i, j, somecurrentArray, someResult);
+        if (!endMessage) {
+            const target = 10;
+            let diffResult = [];
+            let someResult = [];
+            let diffCanPutCellResult = [];
+            for (let i = 0; i < board.length; i++) {
+                for (let j = 0; j < board[i].length; j++) {
+                    if (board[i][j] > 0) {
+                        for (let k = 0; k < searchArray.length; k++) {
+                            let sum = board[i][j];
+                            const differentcurrentArray = [{ y: i, x: j, value: board[i][j] }];
+                            const diffCanPutCellArray = [{ y: i, x: j, value: board[i][j] }];
+                            const somecurrentArray = [{ y: i, x: j, value: board[i][j] }];
+                            // console.log(differentcurrentArray);
+                            differentNum(board, target, sum, k, i, j, differentcurrentArray, diffResult, diffCanPutCellArray, diffCanPutCellResult);
+                            someNum(board, target, sum, k, i, j, somecurrentArray, someResult);
+                            checkSomeNum(board, target, sum, k, i, j, somecurrentArray, someResult);
 
+                        }
                     }
                 }
             }
+            diffResult.forEach(diff => {
+                result.push(diff);
+            });
+            diffCanPutCellResult.forEach(diffCan => {
+                canPutCell.push(diffCan);
+            })
+            someResult.forEach(some => {
+                result.push(some);
+                canPutCell.push(some);
+            });
+            return result;
         }
-        diffResult.forEach(diff => {
-            result.push(diff);
-        });
-        diffCanPutCellResult.forEach(diffCan => {
-            canPutCell.push(diffCan);
-        })
-        someResult.forEach(some => {
-            result.push(some);
-            canPutCell.push(some);
-        });
-        return result;
     }
 
     //８方向合計が１０になる値を探索
     const differentNum = (prevBoard, target, sum, k, i, j, currentArray, diffResult, diffCanPutCellArray, diffCanPutCellResult) => {
-        for (let m = 1; m < 10; m++) {
-            const newY = i + searchArray[k][0] * m;
-            const newX = j + searchArray[k][1] * m;
-            if (outBoard(newY, newX)) {
-                sum += prevBoard[newY][newX];
-                if (prevBoard[newY][newX] !== 0) {
-                    currentArray.push({ y: newY, x: newX, value: prevBoard[newY][newX] });
-                    diffCanPutCellArray.push({ y: newY, x: newX, value: prevBoard[newY][newX] });
-                }
-                if (sum === target) {
-                    if (currentArray.length > 1) {
-                        //クリックできる場所をpush
-                        if (currentArray.length > 2) {
-                            const firstPutCell = diffCanPutCellArray.shift();
-                            const lastPutCell = diffCanPutCellArray.pop();
-                            diffCanPutCellResult.push([firstPutCell, lastPutCell]);
-                        } else {
-                            diffCanPutCellResult.push(diffCanPutCellArray.slice());
-                        }
-                        //消せるセルをpush
-                        diffResult.push(currentArray.slice());
+        if (!endMessage) {
+            for (let m = 1; m < 10; m++) {
+                const newY = i + searchArray[k][0] * m;
+                const newX = j + searchArray[k][1] * m;
+                if (outBoard(newY, newX)) {
+                    sum += prevBoard[newY][newX];
+                    if (prevBoard[newY][newX] !== 0) {
+                        currentArray.push({ y: newY, x: newX, value: prevBoard[newY][newX] });
+                        diffCanPutCellArray.push({ y: newY, x: newX, value: prevBoard[newY][newX] });
                     }
-                    break;
-                } else if (sum > target) {
+                    if (sum === target) {
+                        if (currentArray.length > 1) {
+                            //クリックできる場所をpush
+                            if (currentArray.length > 2) {
+                                const firstPutCell = diffCanPutCellArray.shift();
+                                const lastPutCell = diffCanPutCellArray.pop();
+                                diffCanPutCellResult.push([firstPutCell, lastPutCell]);
+                            } else {
+                                diffCanPutCellResult.push(diffCanPutCellArray.slice());
+                            }
+                            //消せるセルをpush
+                            diffResult.push(currentArray.slice());
+                        }
+                        break;
+                    } else if (sum > target) {
+                        break;
+                    }
+                } else {
                     break;
                 }
-            } else {
-                break;
             }
+            setCheckDiff(diffResult);
         }
-        setCheckDiff(diffResult)
     }
     //８方向同じ値を探索
     const someNum = (prevBoard, target, sum, k, i, j, currentArray, someResult) => {
-
-        for (let n = 1; n < 10; n++) {
-            const newY = i + searchArray[k][0] * n;
-            const newX = j + searchArray[k][1] * n;
-            if (outBoard(newY, newX)) {
-                const current = prevBoard[i][j];
-                const destination = prevBoard[newY][newX];
-                if (destination !== 0 && current !== destination) {
-                    // 次の値が異なる場合、ループを終了
+        if (!endMessage) {
+            for (let n = 1; n < 10; n++) {
+                const newY = i + searchArray[k][0] * n;
+                const newX = j + searchArray[k][1] * n;
+                if (outBoard(newY, newX)) {
+                    const current = prevBoard[i][j];
+                    const destination = prevBoard[newY][newX];
+                    if (destination !== 0 && current !== destination) {
+                        // 次の値が異なる場合、ループを終了
+                        break;
+                    }
+                    currentArray.push({ y: newY, x: newX, value: destination });
+                } else {
                     break;
                 }
-                currentArray.push({ y: newY, x: newX, value: destination });
-            } else {
-                break;
             }
+            someResult.push(currentArray.slice());
         }
-        someResult.push(currentArray.slice());
     }
 
 
     let checkArray = [];
     const checkSomeNum = (prevBoard, target, sum, k, i, j, currentArray, someResult) => {
-        let checkSomeArray = [];
-        checkSomeArray.push(currentArray[0]);
-        for (let n = 1; n < 10; n++) {
-            const newY = i + searchArray[k][0] * n;
-            const newX = j + searchArray[k][1] * n;
-            if (outBoard(newY, newX)) {
-                const current = prevBoard[i][j];
-                const destination = prevBoard[newY][newX];
-                if (destination !== 0) {
-                    if (destination === current && current !== 0) {
-                        // 同じ値を持つセルを currentArray に追加
-                        checkSomeArray.push({ y: newY, x: newX, value: destination });
-                    } else {
-                        // 同じ値が取得できないまま場外に出た場合、または currentArray の長さが 1 の場合、ループを終了
-                        break;
+        if (!endMessage) {
+            let checkSomeArray = [];
+            checkSomeArray.push(currentArray[0]);
+            for (let n = 1; n < 10; n++) {
+                const newY = i + searchArray[k][0] * n;
+                const newX = j + searchArray[k][1] * n;
+                if (outBoard(newY, newX)) {
+                    const current = prevBoard[i][j];
+                    const destination = prevBoard[newY][newX];
+                    if (destination !== 0) {
+                        if (destination === current && current !== 0) {
+                            // 同じ値を持つセルを currentArray に追加
+                            checkSomeArray.push({ y: newY, x: newX, value: destination });
+                        } else {
+                            // 同じ値が取得できないまま場外に出た場合、または currentArray の長さが 1 の場合、ループを終了
+                            break;
+                        }
                     }
+                } else {
+                    // 場外に出た場合、ループを終了
+                    break;
                 }
-            } else {
-                // 場外に出た場合、ループを終了
-                break;
             }
-        }
 
-        if (checkSomeArray.length > 1) {
-            checkArray.push(checkSomeArray);
+            if (checkSomeArray.length > 1) {
+                checkArray.push(checkSomeArray);
+            }
+            setCheckSome(checkArray);
         }
-        setCheckSome(checkArray);
     }
 
 
@@ -203,31 +211,33 @@ export const useBoard = () => {
 
     //クリックしたとき
     const handleClick = (row, col) => {
-        if (board[row][col] !== 0) {
-            setSelectedList(prevSelectedList => {
-                let newSelectedList = [...prevSelectedList];
-                const newSelectedCell = { row: row, col: col };
+        if (!endMessage) {
+            if (board[row][col] !== 0) {
+                setSelectedList(prevSelectedList => {
+                    let newSelectedList = [...prevSelectedList];
+                    const newSelectedCell = { row: row, col: col };
 
-                // すでに同じ座標が選択されている場合、新しいセルを追加せずに処理を終了
+                    // すでに同じ座標が選択されている場合、新しいセルを追加せずに処理を終了
 
-                newSelectedList.push(newSelectedCell);
-                // クリック回数が奇数の場合、firstClickIndex を設定し、偶数の場合、secondClickIndex を設定する
-                if (newSelectedList.length % 2 === 1) {
-                    setFirstClickIndex([newSelectedList[newSelectedList.length - 1].row, newSelectedList[newSelectedList.length - 1].col]);
-                    if (board[row][col]) {
-                        searchMerge();
-                        canSecondClickContent(row, col, board);
+                    newSelectedList.push(newSelectedCell);
+                    // クリック回数が奇数の場合、firstClickIndex を設定し、偶数の場合、secondClickIndex を設定する
+                    if (newSelectedList.length % 2 === 1) {
+                        setFirstClickIndex([newSelectedList[newSelectedList.length - 1].row, newSelectedList[newSelectedList.length - 1].col]);
+                        if (board[row][col]) {
+                            searchMerge();
+                            canSecondClickContent(row, col, board);
+                        }
+                        setIsActive(true);
+                        canChangeContent(row, col, board);
+                    } else if (newSelectedList.length % 2 === 0) {
+                        setIsActive2(true);
+                        setSecondClickIndex([newSelectedList[newSelectedList.length - 1].row, newSelectedList[newSelectedList.length - 1].col]);
                     }
-                    setIsActive(true);
-                    canChangeContent(row, col, board);
-                } else if (newSelectedList.length % 2 === 0) {
-                    setIsActive2(true);
-                    setSecondClickIndex([newSelectedList[newSelectedList.length - 1].row, newSelectedList[newSelectedList.length - 1].col]);
-                }
 
 
-                return [...newSelectedList];
-            });
+                    return [...newSelectedList];
+                });
+            }
         }
     }
 
@@ -281,7 +291,6 @@ export const useBoard = () => {
         canPut.forEach(canP => {
             canSel.push(canP);
         });
-        // console.log(canSel);
         setCanClickCell(canSel);
         return canSel;
     }
@@ -315,13 +324,15 @@ export const useBoard = () => {
         })
     }
 
+    const [canScore, setCanScore] = useState([]);
+
     useEffect(() => {
         // //secondClickIndexが押されたとき、canClickCell配列に含まれているなら削除
         // //secondClickIndexが押されたとき、8方向探索して、
         // // firstClickIndexがある座標までの１方向を配列に格納してから削除する
         if (isActive && firstClickIndex.length > 0 && isActive2) {
+            const directionCells = [];
             for (let j = 0; j < searchArray.length; j++) {
-                const directionCells = [];
                 for (let k = 1; k < 10; k++) {
                     const newY = secondClickIndex[0] + searchArray[j][0] * k;
                     const newX = secondClickIndex[1] + searchArray[j][1] * k;
@@ -334,8 +345,6 @@ export const useBoard = () => {
                                     directionCells.push(firstClickIndex);
                                     directionCells.push(secondClickIndex);
                                     if (removeInY == firstClickIndex[0] && removeInX == firstClickIndex[1]) {
-                                        // console.log(directionCells);
-                                        // console.log(removeInY, removeInX);
                                         break;
                                     } else {
                                         directionCells.push([removeInY, removeInX]);
@@ -352,9 +361,16 @@ export const useBoard = () => {
                         directionCells.forEach(dire => {
                             setBoard(prevBoard => {
                                 //削除されるセル
-                                const newBoard = [...prevBoard];
                                 const direY = dire[0];
                                 const direX = dire[1];
+                                const newBoard = [...prevBoard];
+                                if (newBoard[direY][direX] !== 0) {
+                                    setCanScore(prevCell => {
+                                        prevCell.push([direY, direX]);
+                                        return [...prevCell]
+                                    });
+                                }
+                                // console.log(newBoard[direY][direX]);
                                 newBoard[direY][direX] = 0;
                                 if (newBoard[direY][direX] == 0) {
                                     setIsTurn(true);
@@ -362,12 +378,10 @@ export const useBoard = () => {
                                 return newBoard;
                             })
                         })
-
-
                     }
                 })
             }
-
+        
             setIsActive(false);
             setIsActive2(false);
             //選択できるセルを解除
@@ -377,14 +391,13 @@ export const useBoard = () => {
             setFirstClickIndex([]);
             // setSecondClickIndex([]);
         }
-    }, [canClickCell, firstClickIndex, secondClickIndex, canChangeCell, isActive, isActive2, ArrayExists, turn]);
+    }, [ canClickCell, firstClickIndex, secondClickIndex, canChangeCell, isActive, isActive2, ArrayExists, turn]);
     useEffect(() => {
         if (isTurn) {
             setTurn(prevTurn => {
                 if (prevTurn - 1 == 0) {
                     //ゲーム終了していないなら
                     if (!isEndGame) {
-                        console.log("げーむ");
                         setBoard(prevBoard => {
                             let randomArray = [];
                             const newCellArray = [...prevBoard];
@@ -398,7 +411,7 @@ export const useBoard = () => {
                             return newCellArray;
                         })
                     } else {
-                        console.log("おわり");
+                        setEndMessage("ゲーム終了!!");
                     }
                     prevTurn = 5;
 
@@ -410,8 +423,26 @@ export const useBoard = () => {
             setIsTurn(false);
         }
 
-    }, [isTurn, isEndGame]);
-
+    }, [isTurn, isEndGame, firstClickIndex, secondClickIndex]);
+    useEffect(() => {
+        const filteredCells = canScore.reduce((a, b) => {
+            if (!a.some(c => JSON.stringify(c) === JSON.stringify(b))) {
+                a.push(b);
+            }
+            return a;
+        }, []);
+        // スコア計算
+        console.log(filteredCells.length);
+        if (filteredCells.length === 2) {
+            setScore(prevScore => prevScore + 10);
+            
+        } else if (filteredCells.length === 3) {
+            setScore(prevScore => prevScore + 30);
+        } else if (filteredCells.length > 3) {
+            setScore(prevScore => prevScore + 45);
+        }
+    }, [canScore]);
+    
 
     useEffect(() => {
         searchMerge();
@@ -424,13 +455,23 @@ export const useBoard = () => {
     }, [isActive2]);
 
     useEffect(() => {
+        if (endMessage) {
+            setFirstClickIndex([]);
+            setSecondClickIndex([]);
+            setIsActive(false);
+            setIsActive2(false);
+            setCanChangeCell([]);
+            setCanClickCell([]);
+        }
+    }, [endMessage]);
+
+    useEffect(() => {
         if (isStart) {
             // 初期値である空の配列の場合は処理をスキップする
             if (checkDiff.length === 0 && checkSome.length === 0) {
                 // console.log("消せるのがない");
                 if (turn !== 5) {
                     if (!isEndGame) {
-                        console.log("げーむ");
                         setBoard(prevBoard => {
                             let randomArray = [];
                             const newCellArray = [...prevBoard];
@@ -446,7 +487,7 @@ export const useBoard = () => {
                         });
                         setTurn(5);
                     } else {
-                        console.log("おわり");
+                        setEndMessage("ゲーム終了!!");
                     }
                 }
             }
@@ -470,9 +511,10 @@ export const useBoard = () => {
         setIsEndGame(false);
         return false;
     }
-    useEffect(() => {
-        console.log(isEndGame);
-    }, [isEndGame]);
 
-    return { board, handleClick, canSecondClickContent, firstClickIndex, canClickCell, turn };
+    useEffect(() => {
+        setCanScore([]);
+    }, [score]);
+
+    return { board, handleClick, canSecondClickContent, firstClickIndex, canClickCell, turn, endMessage, score };
 }

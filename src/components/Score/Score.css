@@ -1,0 +1,20 @@
+.score-board {
+    width: 150px;
+    height: 100px;
+    background-color: lightblue;
+    border-radius: 20px;
+    font-size: 20px;
+    color: white;
+    position: absolute;
+    top: 80%;
+    padding-left: 5px;
+    padding-top: 10px;
+}
+
+.score {
+    font-size: 32px;
+margin-left: 60px;
+}
+.score>span{
+    font-size: 20px;
+}
